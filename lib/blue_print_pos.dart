@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:blue_print_pos/models/models.dart';
 import 'package:blue_print_pos/receipt/receipt_section_text.dart';
 import 'package:blue_print_pos/scanner/blue_scanner.dart';
@@ -9,14 +8,13 @@ import 'package:blue_thermal_printer/blue_thermal_printer.dart' as blue_thermal;
 import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as flutter_blue;
-import 'package:flutter_blue_plus/gen/flutterblueplus.pb.dart' as proto;
 import 'package:image/image.dart' as img;
 import 'package:qr_flutter/qr_flutter.dart';
 
 class BluePrintPos {
   BluePrintPos._() {
     _bluetoothAndroid = blue_thermal.BlueThermalPrinter.instance;
-    _bluetoothIOS = flutter_blue.FlutterBluePlus.instance;
+    // _bluetoothIOS = flutter_blue.FlutterBluePlus(); //flutter_blue.FlutterBluePlus.instance;
   }
 
   static BluePrintPos get instance => BluePrintPos._();
@@ -27,7 +25,7 @@ class BluePrintPos {
   blue_thermal.BlueThermalPrinter? _bluetoothAndroid;
 
   /// This field is library to handle in iOS Platform
-  flutter_blue.FlutterBluePlus? _bluetoothIOS;
+  // flutter_blue.FlutterBluePlus? _bluetoothIOS;
 
   /// Bluetooth Device model for iOS
   flutter_blue.BluetoothDevice? _bluetoothDeviceIOS;
@@ -58,20 +56,19 @@ class BluePrintPos {
     try {
       if (Platform.isAndroid) {
         final blue_thermal.BluetoothDevice bluetoothDeviceAndroid =
-            blue_thermal.BluetoothDevice(
-                selectedDevice?.name ?? '', selectedDevice?.address ?? '');
+            blue_thermal.BluetoothDevice(selectedDevice?.name ?? '', selectedDevice?.address ?? '');
         await _bluetoothAndroid?.connect(bluetoothDeviceAndroid);
       } else if (Platform.isIOS) {
         _bluetoothDeviceIOS = flutter_blue.BluetoothDevice.fromProto(
-          proto.BluetoothDevice(
-            name: selectedDevice?.name ?? '',
+          flutter_blue.BmBluetoothDevice(
+            platformName: selectedDevice?.name ?? '',
             remoteId: selectedDevice?.address ?? '',
-            type: proto.BluetoothDevice_Type.valueOf(selectedDevice?.type ?? 0),
+            // type: BluetoothDevice_Type.valueOf(selectedDevice?.type ?? 0),
           ),
         );
+        
         final List<flutter_blue.BluetoothDevice> connectedDevices =
-            await _bluetoothIOS?.connectedDevices ??
-                <flutter_blue.BluetoothDevice>[];
+            await flutter_blue.FlutterBluePlus.connectedSystemDevices;
         final int deviceConnectedIndex = connectedDevices
             .indexWhere((flutter_blue.BluetoothDevice bluetoothDevice) {
           return bluetoothDevice.id == _bluetoothDeviceIOS?.id;
@@ -195,33 +192,24 @@ class BluePrintPos {
         _bluetoothAndroid?.writeBytes(Uint8List.fromList(byteBuffer));
       } else if (Platform.isIOS) {
         final List<flutter_blue.BluetoothService> bluetoothServices =
-            await _bluetoothDeviceIOS?.discoverServices() ??
-                <flutter_blue.BluetoothService>[];
-        final flutter_blue.BluetoothService bluetoothService =
-            bluetoothServices.firstWhere(
+            await _bluetoothDeviceIOS?.discoverServices() ?? <flutter_blue.BluetoothService>[];
+        final flutter_blue.BluetoothService bluetoothService = bluetoothServices.firstWhere(
           (flutter_blue.BluetoothService service) => service.isPrimary,
         );
-        final List<flutter_blue.BluetoothCharacteristic>
-            writableCharacteristics = bluetoothService.characteristics
-                .where((flutter_blue.BluetoothCharacteristic
-                        bluetoothCharacteristic) =>
-                    bluetoothCharacteristic.properties.write == true)
-                .toList();
+        final List<flutter_blue.BluetoothCharacteristic> writableCharacteristics = bluetoothService.characteristics
+            .where((flutter_blue.BluetoothCharacteristic bluetoothCharacteristic) =>
+                bluetoothCharacteristic.properties.write == true)
+            .toList();
         if (writableCharacteristics.isNotEmpty) {
-          await writableCharacteristics[0]
-              .write(byteBuffer, withoutResponse: true);
+          await writableCharacteristics[0].write(byteBuffer, withoutResponse: true);
         } else {
-          final List<flutter_blue.BluetoothCharacteristic>
-              writableWithoutResponseCharacteristics = bluetoothService
-                  .characteristics
-                  .where((flutter_blue.BluetoothCharacteristic
-                          bluetoothCharacteristic) =>
-                      bluetoothCharacteristic.properties.writeWithoutResponse ==
-                      true)
-                  .toList();
+          final List<flutter_blue.BluetoothCharacteristic> writableWithoutResponseCharacteristics = bluetoothService
+              .characteristics
+              .where((flutter_blue.BluetoothCharacteristic bluetoothCharacteristic) =>
+                  bluetoothCharacteristic.properties.writeWithoutResponse == true)
+              .toList();
           if (writableWithoutResponseCharacteristics.isNotEmpty) {
-            await writableWithoutResponseCharacteristics[0]
-                .write(byteBuffer, withoutResponse: true);
+            await writableWithoutResponseCharacteristics[0].write(byteBuffer, withoutResponse: true);
           }
         }
       }
@@ -275,8 +263,7 @@ class BluePrintPos {
         color: const Color(0xFF000000),
         emptyColor: const Color(0xFFFFFFFF),
       ).toImage(size);
-      final ByteData? byteData =
-          await image.toByteData(format: ImageByteFormat.png);
+      final ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
       assert(byteData != null);
       return byteData!.buffer.asUint8List();
     } on Exception catch (exception) {
@@ -295,8 +282,7 @@ class BluePrintPos {
     };
     Uint8List results = Uint8List.fromList(<int>[]);
     try {
-      results = await _channel.invokeMethod('contentToImage', arguments) ??
-          Uint8List.fromList(<int>[]);
+      results = await _channel.invokeMethod('contentToImage', arguments) ?? Uint8List.fromList(<int>[]);
     } on Exception catch (e) {
       log('[method:contentToImage]: $e');
       throw Exception('Error: $e');

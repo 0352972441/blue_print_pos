@@ -12,10 +12,8 @@ class BlueScanner {
   static Future<List<BlueDevice>> scan() async {
     List<BlueDevice> devices = <BlueDevice>[];
     if (Platform.isAndroid) {
-      final blue_thermal.BlueThermalPrinter bluetoothAndroid =
-          blue_thermal.BlueThermalPrinter.instance;
-      final List<blue_thermal.BluetoothDevice> resultDevices =
-          await bluetoothAndroid.getBondedDevices();
+      final blue_thermal.BlueThermalPrinter bluetoothAndroid = blue_thermal.BlueThermalPrinter.instance;
+      final List<blue_thermal.BluetoothDevice> resultDevices = await bluetoothAndroid.getBondedDevices();
       devices = resultDevices
           .map(
             (blue_thermal.BluetoothDevice bluetoothDevice) => BlueDevice(
@@ -26,22 +24,20 @@ class BlueScanner {
           )
           .toList();
     } else if (Platform.isIOS) {
-      final flutter_blue.FlutterBluePlus bluetoothIOS =
-          flutter_blue.FlutterBluePlus.instance;
-      final List<flutter_blue.BluetoothDevice> resultDevices =
-          <flutter_blue.BluetoothDevice>[];
+      // final flutter_blue.FlutterBluePlus bluetoothIOS =
+      //     flutter_blue.FlutterBluePlus.instance;
+      final List<flutter_blue.BluetoothDevice> resultDevices = <flutter_blue.BluetoothDevice>[];
 
-      await bluetoothIOS.startScan(
+      await flutter_blue.FlutterBluePlus.startScan(
         timeout: const Duration(seconds: 5),
       );
-      bluetoothIOS.scanResults
-          .listen((List<flutter_blue.ScanResult> scanResults) {
+      flutter_blue.FlutterBluePlus.scanResults.listen((List<flutter_blue.ScanResult> scanResults) {
         for (final flutter_blue.ScanResult scanResult in scanResults) {
           resultDevices.add(scanResult.device);
         }
       });
 
-      await bluetoothIOS.stopScan();
+      await flutter_blue.FlutterBluePlus.stopScan();
       devices = resultDevices
           .toSet()
           .toList()
@@ -49,7 +45,7 @@ class BlueScanner {
             (flutter_blue.BluetoothDevice bluetoothDevice) => BlueDevice(
               address: bluetoothDevice.id.id,
               name: bluetoothDevice.name,
-              type: bluetoothDevice.type.index,
+              // type: bluetoothDevice. //.index as int,
             ),
           )
           .toList();

@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:blue_print_pos/models/models.dart';
 import 'package:blue_print_pos/receipt/receipt_section_text.dart';
 import 'package:blue_print_pos/scanner/blue_scanner.dart';

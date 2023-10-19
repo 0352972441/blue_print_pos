@@ -42,31 +42,25 @@ class _MyAppState extends State<MyApp> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Column(
-                            children: List<Widget>.generate(_blueDevices.length,
-                                (int index) {
+                            children: List<Widget>.generate(_blueDevices.length, (int index) {
                               return Row(
                                 children: <Widget>[
                                   Expanded(
                                     child: GestureDetector(
-                                      onTap: _blueDevices[index].address ==
-                                              (_selectedDevice?.address ?? '')
+                                      onTap: _blueDevices[index].address == (_selectedDevice?.address ?? '')
                                           ? _onDisconnectDevice
                                           : () => _onSelectDevice(index),
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Text(
                                               _blueDevices[index].name,
                                               style: TextStyle(
-                                                color:
-                                                    _selectedDevice?.address ==
-                                                            _blueDevices[index]
-                                                                .address
-                                                        ? Colors.blue
-                                                        : Colors.black,
+                                                color: _selectedDevice?.address == _blueDevices[index].address
+                                                    ? Colors.blue
+                                                    : Colors.black,
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -74,12 +68,9 @@ class _MyAppState extends State<MyApp> {
                                             Text(
                                               _blueDevices[index].address,
                                               style: TextStyle(
-                                                color:
-                                                    _selectedDevice?.address ==
-                                                            _blueDevices[index]
-                                                                .address
-                                                        ? Colors.blueGrey
-                                                        : Colors.grey,
+                                                color: _selectedDevice?.address == _blueDevices[index].address
+                                                    ? Colors.blueGrey
+                                                    : Colors.grey,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -95,21 +86,16 @@ class _MyAppState extends State<MyApp> {
                                       width: 24.0,
                                       margin: const EdgeInsets.only(right: 8.0),
                                       child: const CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
+                                        valueColor: AlwaysStoppedAnimation<Color>(
                                           Colors.blue,
                                         ),
                                       ),
                                     ),
-                                  if (!_isLoading &&
-                                      _blueDevices[index].address ==
-                                          (_selectedDevice?.address ?? ''))
+                                  if (!_isLoading && _blueDevices[index].address == (_selectedDevice?.address ?? ''))
                                     TextButton(
                                       onPressed: _onPrintReceipt,
                                       child: Container(
-                                        color: _selectedDevice == null
-                                            ? Colors.grey
-                                            : Colors.blue,
+                                        color: _selectedDevice == null ? Colors.grey : Colors.blue,
                                         padding: const EdgeInsets.all(8.0),
                                         child: const Text(
                                           'Test Print',
@@ -117,18 +103,12 @@ class _MyAppState extends State<MyApp> {
                                         ),
                                       ),
                                       style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty
-                                            .resolveWith<Color>(
+                                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
-                                            if (states.contains(
-                                                MaterialState.pressed)) {
-                                              return Theme.of(context)
-                                                  .colorScheme
-                                                  .primary
-                                                  .withOpacity(0.5);
+                                            if (states.contains(MaterialState.pressed)) {
+                                              return Theme.of(context).colorScheme.primary.withOpacity(0.5);
                                             }
-                                            return Theme.of(context)
-                                                .primaryColor;
+                                            return Theme.of(context).primaryColor;
                                           },
                                         ),
                                       ),
@@ -261,8 +241,7 @@ class _MyAppState extends State<MyApp> {
 
     /// Text after QR
     final ReceiptSectionText receiptSecondText = ReceiptSectionText();
-    receiptSecondText.addText('Powered by ayeee',
-        size: ReceiptTextSizeType.small);
+    receiptSecondText.addText('Powered by ayeee', size: ReceiptTextSizeType.small);
     receiptSecondText.addSpacer();
     await _bluePrintPos.printReceiptText(receiptSecondText, feedCount: 1);
   }

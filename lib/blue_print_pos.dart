@@ -239,13 +239,13 @@ class BluePrintPos {
     //   allowLongWrite: true,
     // );
     // return;
-    final int maxChunkSize = writableWithoutResponse == true ? 182 : 512;
+    const int maxChunkSize = 512; //writableWithoutResponse == true ? 182 :
     for (int i = 0; i < data.length; i += maxChunkSize) {
       final List<int> chunk = data.sublist(i, i + maxChunkSize < data.length ? i + maxChunkSize : data.length);
       await characteristic.write(
         chunk,
-        withoutResponse: writableWithoutResponse == true,
-        allowLongWrite: writableWithoutResponse != true,
+        withoutResponse: false, //writableWithoutResponse == true,
+        allowLongWrite: true, //writableWithoutResponse != true,
       );
       // await Future.delayed(const Duration(milliseconds: 100), () {});
     }

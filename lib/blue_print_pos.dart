@@ -222,7 +222,7 @@ class BluePrintPos {
                   bluetoothCharacteristic.properties.writeWithoutResponse == true)
               .toList();
           if (writableWithoutResponseCharacteristics.isNotEmpty) {
-            await writeLargeDataToCharacteristic(writableCharacteristics[0], byteBuffer);
+            await writeLargeDataToCharacteristic(writableCharacteristics[0], byteBuffer, writableWithoutResponse: true);
           }
         }
       }
@@ -231,15 +231,23 @@ class BluePrintPos {
     }
   }
 
-  Future<void> writeLargeDataToCharacteristic(BluetoothCharacteristic characteristic, List<int> data) async {
-    const int maxChunkSize = 244;
+  Future<void> writeLargeDataToCharacteristic(BluetoothCharacteristic characteristic, List<int> data,
+      {bool? writableWithoutResponse}) async {
+    // await characteristic.write(
+    //   data,
+    //   withoutResponse: false,
+    //   allowLongWrite: true,
+    // );
+    // return;
+    final int maxChunkSize = writableWithoutResponse == true ? 182 : 512;
     for (int i = 0; i < data.length; i += maxChunkSize) {
       final List<int> chunk = data.sublist(i, i + maxChunkSize < data.length ? i + maxChunkSize : data.length);
       await characteristic.write(
         chunk,
-        withoutResponse: true,
+        withoutResponse: writableWithoutResponse == true,
+        allowLongWrite: writableWithoutResponse != true,
       );
-      await Future.delayed(const Duration(milliseconds: 100), () {});
+      // await Future.delayed(const Duration(milliseconds: 100), () {});
     }
   }
 

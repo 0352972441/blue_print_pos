@@ -121,6 +121,7 @@ class BluePrintPos {
     bool useRaster = false,
     double duration = 0,
     PaperSize paperSize = PaperSize.mm58,
+    int customWidth = 0,
   }) async {
     // Add below line if print not in full width <-- width -->
     // paperSize = Platform.isAndroid ? PaperSize.mm72 : PaperSize.mm58;
@@ -134,6 +135,7 @@ class BluePrintPos {
       feedCount: feedCount,
       useCut: useCut,
       useRaster: useRaster,
+      customWidth: customWidth,
     );
 
     _printProcess(byteBuffer);

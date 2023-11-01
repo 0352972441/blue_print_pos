@@ -13,15 +13,15 @@ class BlueScanner {
     if (Platform.isAndroid) {
       final blue_thermal.BlueThermalPrinter bluetoothAndroid = blue_thermal.BlueThermalPrinter.instance;
       final List<blue_thermal.BluetoothDevice> resultDevices = await bluetoothAndroid.getBondedDevices();
-      devices = resultDevices
-          .map(
-            (blue_thermal.BluetoothDevice bluetoothDevice) => BlueDevice(
-              name: bluetoothDevice.name ?? '',
-              address: bluetoothDevice.address ?? '',
-              type: bluetoothDevice.type,
-            ),
-          )
-          .toList();
+      devices = resultDevices.map(
+        (blue_thermal.BluetoothDevice bluetoothDevice) {
+          return BlueDevice(
+            name: bluetoothDevice.name ?? '',
+            address: bluetoothDevice.address ?? '',
+            type: bluetoothDevice.type,
+          );
+        },
+      ).toList();
     } else if (Platform.isIOS) {
       final List<flutter_blue.BluetoothDevice> resultDevices = <flutter_blue.BluetoothDevice>[];
 

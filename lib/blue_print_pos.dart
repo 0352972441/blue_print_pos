@@ -208,6 +208,7 @@ class BluePrintPos {
         final flutter_blue.BluetoothService bluetoothService = bluetoothServices.firstWhere(
           (flutter_blue.BluetoothService service) => service.isPrimary,
         );
+
         final List<flutter_blue.BluetoothCharacteristic> writableCharacteristics = bluetoothService.characteristics
             .where((flutter_blue.BluetoothCharacteristic bluetoothCharacteristic) =>
                 bluetoothCharacteristic.properties.write == true)
@@ -233,21 +234,15 @@ class BluePrintPos {
 
   Future<void> writeLargeDataToCharacteristic(BluetoothCharacteristic characteristic, List<int> data,
       {bool? writableWithoutResponse}) async {
-    // await characteristic.write(
-    //   data,
-    //   withoutResponse: false,
-    //   allowLongWrite: true,
-    // );
-    // return;
-    final int maxChunkSize = writableWithoutResponse == true ? 182 : 512;
+    final int chunkMtu = (await characteristic.device.mtu.first) - 3;
+    final int maxChunkSize = chunkMtu;
     for (int i = 0; i < data.length; i += maxChunkSize) {
       final List<int> chunk = data.sublist(i, i + maxChunkSize < data.length ? i + maxChunkSize : data.length);
       await characteristic.write(
         chunk,
-        withoutResponse: writableWithoutResponse == true,
-        allowLongWrite: writableWithoutResponse != true,
+        withoutResponse: true,
+        allowLongWrite: false,
       );
-      // await Future.delayed(const Duration(milliseconds: 100), () {});
     }
   }
 

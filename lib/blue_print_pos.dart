@@ -42,11 +42,23 @@ class BluePrintPos {
 
   /// return bluetooth device list, handler Android and iOS in [BlueScanner]
   Future<List<BlueDevice>> scan() async {
+    try {
+      _disconnectDeviceConnectedWithSystem();
+    } catch (e) {
+      // dosomething
+    }
     return await BlueScanner.scan();
   }
 
   Future<bool> isSupport() async {
     return await FlutterBluePlus.isSupported;
+  }
+
+  Future<void> _disconnectDeviceConnectedWithSystem() async {
+    final List<BluetoothDevice> devs = await FlutterBluePlus.systemDevices;
+    for (final flutter_blue.BluetoothDevice bluetoothDevice in devs) {
+      bluetoothDevice.disconnect();
+    }
   }
 
   /// When connecting, reassign value [selectedDevice] from parameter [device]
